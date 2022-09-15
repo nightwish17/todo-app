@@ -1,11 +1,27 @@
 import {GiHornedHelm} from "react-icons/gi";
 import {AiOutlinePlus, AiOutlineClose} from "react-icons/ai";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 function App() {
-    const [tasks, setTasks] = useState([]);
     const [input, setInput] = useState('');
+    const [tasks, setTasks] = useState([]);
 
+    const loadSavedTasks = () => {
+        const savedTasks = localStorage.getItem('todo:tasks')
+        if (savedTasks) {
+            setTasks(JSON.parse(savedTasks))
+        }
+    }
+
+    useEffect(() => {
+        loadSavedTasks();
+    }, []);
+
+
+    const setTasksAndSave = (newTasks) => {
+        setTasks(newTasks);
+        localStorage.setItem('todo:tasks', JSON.stringify(newTasks))
+    }
 
     const handleSubmit = (e) => {
         e.preventDefault()
@@ -16,18 +32,20 @@ function App() {
             completed: false
         }
         if (input.trim().length) {
-            setTasks([...tasks, addTask])
+            setTasksAndSave([...tasks, addTask])
+        }  else {
+            alert('Please, enter a task!')
         }
         setInput('')
     }
 
     const deleteTask = (id) => {
         let filteredTask = [...tasks].filter((tasks) => tasks.id !== id)
-        setTasks(filteredTask)
+        setTasksAndSave(filteredTask)
     }
 
     const toggleComplete = (id) => {
-        setTasks(
+        setTasksAndSave(
             tasks.map(task => (
                 task.id === id ? {...task, completed: !task.completed} : task
             ))
@@ -37,6 +55,8 @@ function App() {
     const date = new Date();
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+
 
     return (
     <div className="app">
